@@ -1,47 +1,317 @@
-// Configuração do Google Sheets como banco de dados
+// Configuração do Banco de Dados - VERSÃO SIMPLIFICADA E FUNCIONAL
 class Database {
     constructor() {
-        // URLs das APIs do Google Sheets (simulação)
-        this.sheetId = 'SEU_SHEET_ID_AQUI';
-        this.apiKey = '1Nj0U6Fd7aa0rUnNrREH_ocMMw-jZZCacpfHhuM_LFYM';
-        this.baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/`;
+        // SUA URL DO GOOGLE APPS SCRIPT
+        this.appsScriptUrl = 'https://script.google.com/macros/s/AKfycbySgdwz__W5fKqP48rjNlqaLsXcLG2sZW6isCXm-thrLzLuXzcP-c9_-ccBiGDKXog-nQ/exec';
     }
 
-    // Método para salvar dados localmente (usado enquanto não configura o Google Sheets)
+    // ========== FUNÇÃO DE TESTE DA CONEXÃO ==========
+    static async testConnection() {
+        console.log('🔍 Testando conexão com Google Sheets...');
+        
+        try {
+            const db = new Database();
+            const url = `${db.appsScriptUrl}?action=test&_=${Date.now()}`;
+            
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            console.log('✅ Resposta do teste:', result);
+            return result.success;
+            
+        } catch (error) {
+            console.error('❌ Erro no teste de conexão:', error);
+            return false;
+        }
+    }
+
+    // ========== FUNÇÕES BÁSICAS ==========
     static saveToLocal(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-        return true;
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('Erro ao salvar localmente:', error);
+            return false;
+        }
     }
 
-    // Método para carregar dados localmente
     static loadFromLocal(key) {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : [];
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error('Erro ao carregar localmente:', error);
+            return [];
+        }
     }
 
-    // Método para adicionar um produto
-    static addProduct(product) {
-        const products = this.loadFromLocal('produtos');
-        product.id = Date.now().toString(); // ID único baseado no timestamp
+    // ========== GERADOR DE CÓDIGO ==========
+    static generateProductCode(nome, categoria) {
+        if (!nome) return 'PROD-' + Date.now().toString().slice(-6);
+        
+        // Pega as 3 primeiras letras do nome
+        let nomeCode = nome.substring(0, 3).toUpperCase();
+        
+        // Código da categoria
+        const catCodes = {
+            'maquiagem': 'MQ', 'skincare': 'SK', 'acessorios': 'AC',
+            'fragrancias': 'FR', 'cabelos': 'CB'
+        };
+        const catCode = catCodes[categoria] || 'PR';
+        
+        // Número sequencial
+        const sequential = Date.now().toString().slice(-4);
+        
+        return `${catCode}-${nomeCode}-${sequential}`;
+    }
+
+    // ========== FUNÇÃO PARA CHAMAR O GOOGLE SHEETS ==========
+    static async callGoogleSheets(action, data = null) {
+        const db = new Database();
+        
+        try {
+            // Cria a URL com ação
+            let url = `${db.appsScriptUrl}?action=${action}`;
+            
+            // Adiciona dados se houver
+            if (data) {
+                url += `&data=${encodeURIComponent(JSON.stringify(data))}`;
+            }
+            
+            // Adiciona timestamp para evitar cache
+            url += `&_=${Date.now()}`;
+            
+            console.log(`📤 Enviando para Google Sheets: ${action}`);
+            
+            // Faz a requisição
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log(`✅ ${action} no Google Sheets: Sucesso`);
+                return result;
+            } else {
+                console.error(`❌ ${action} no Google Sheets:`, result.error);
+                return result;
+            }
+            
+        } catch (error) {
+            console.error(`❌ Falha na conexão com Google Sheets (${action}):`, error.message);
+            return {
+                success: false,
+                error: error.message,
+                fallback: true
+            };
+        }
+    }
+
+    // ========== FUNÇÕES DE PRODUTOS ==========
+    static async addProduct(product) {
+        console.log('➕ Adicionando produto:', product.nome);
+        
+        // GERA O CÓDIGO AQUI MESMO
+        if (!product.codigo && product.nome) {
+            product.codigo = this.generateProductCode(product.nome, product.categoria);
+        }
+        
+        // Completa dados do produto
+        product.id = 'PROD-' + Date.now();
         product.createdAt = new Date().toISOString();
-        products.push(product);
-        this.saveToLocal('produtos', products);
+        product.updatedAt = new Date().toISOString();
+        
+        // Valores padrão
+        product.estoque = product.estoque || 0;
+        product.estoqueMinimo = product.estoqueMinimo || 5;
+        product.custo = product.custo || 0;
+        product.precoSugerido = product.precoSugerido || 0;
+        
+        // 1️⃣ SALVA LOCALMENTE (funciona sempre)
+        const localProducts = this.loadFromLocal('produtos') || [];
+        localProducts.push(product);
+        this.saveToLocal('produtos', localProducts);
+        
+        console.log('✅ Produto salvo LOCALMENTE:', product.codigo);
+        
+        // 2️⃣ TENTA SALVAR NO GOOGLE SHEETS (em segundo plano)
+        setTimeout(async () => {
+            try {
+                const result = await this.callGoogleSheets('addProduct', product);
+                
+                if (result.success) {
+                    console.log('☁️  Produto salvo no GOOGLE SHEETS:', product.codigo);
+                    
+                    // Mostra alerta visual
+                    if (typeof showNotification === 'function') {
+                        showNotification('Produto sincronizado com Google Sheets!', 'success');
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️  Produto salvo apenas localmente (Google offline)');
+            }
+        }, 500);
+        
         return product;
     }
 
-    // Método para atualizar um produto
-    static updateProduct(id, updates) {
-        const products = this.loadFromLocal('produtos');
+    static async getProducts(filter = {}) {
+        console.log('🔄 Buscando produtos...');
+        
+        // PRIMEIRO: Tenta buscar do Google Sheets
+        try {
+            const result = await this.callGoogleSheets('getProducts');
+            
+            if (result.success && result.data) {
+                console.log(`✅ Produtos do Google Sheets: ${result.data.length} itens`);
+                
+                // Salva como cache local
+                this.saveToLocal('produtos_cache', result.data);
+                this.saveToLocal('produtos_last_sync', new Date().toISOString());
+                
+                let products = result.data;
+                
+                // Aplica filtros
+                if (filter.categoria) {
+                    products = products.filter(p => p.categoria === filter.categoria);
+                }
+                
+                if (filter.search) {
+                    const searchTerm = filter.search.toLowerCase();
+                    products = products.filter(p => 
+                        p.nome?.toLowerCase().includes(searchTerm) ||
+                        p.codigo?.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                return products;
+            }
+        } catch (error) {
+            console.log('⚠️  Usando cache local');
+        }
+        
+        // SEGUNDO: Usa cache local
+        const cachedProducts = this.loadFromLocal('produtos_cache');
+        if (cachedProducts.length > 0) {
+            console.log(`📦 Produtos do cache: ${cachedProducts.length} itens`);
+            return cachedProducts;
+        }
+        
+        // TERCEIRO: Usa dados locais
+        const localProducts = this.loadFromLocal('produtos');
+        console.log(`🏠 Produtos locais: ${localProducts.length} itens`);
+        return localProducts;
+    }
+
+    static async updateProduct(id, updates) {
+        // Atualiza localmente
+        const products = this.loadFromLocal('produtos') || [];
         const index = products.findIndex(p => p.id === id);
+        
         if (index !== -1) {
-            products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
+            updates.updatedAt = new Date().toISOString();
+            products[index] = { ...products[index], ...updates };
             this.saveToLocal('produtos', products);
+            
+            // Tenta atualizar no Google também
+            setTimeout(async () => {
+                try {
+                    await this.callGoogleSheets('updateProduct', { id, ...updates });
+                } catch (error) {
+                    console.log('⚠️  Atualizado apenas localmente');
+                }
+            }, 500);
+            
             return products[index];
         }
+        
         return null;
     }
 
-    // Método para remover um produto
+    // ========== FUNÇÕES DE VENDAS ==========
+    static async addSale(sale) {
+        console.log('💰 Registrando venda...');
+        
+        // Prepara a venda
+        sale.id = 'VEND-' + Date.now();
+        sale.data = new Date().toISOString();
+        sale.status = sale.status || 'concluida';
+        
+        // Calcula totais
+        if (!sale.subtotal && sale.produtos) {
+            sale.subtotal = sale.produtos.reduce((total, item) => 
+                total + (item.precoUnitario * item.quantidade), 0);
+        }
+        
+        if (!sale.valorTotal) {
+            const desconto = sale.desconto || 0;
+            const taxas = sale.taxas || 0;
+            sale.valorTotal = sale.subtotal - desconto + taxas;
+        }
+        
+        // 1️⃣ SALVA LOCALMENTE
+        const localSales = this.loadFromLocal('vendas') || [];
+        localSales.push(sale);
+        this.saveToLocal('vendas', localSales);
+        
+        // Atualiza estoque local
+        const products = this.loadFromLocal('produtos');
+        sale.produtos.forEach(item => {
+            const productIndex = products.findIndex(p => p.id === item.produtoId);
+            if (productIndex !== -1) {
+                products[productIndex].estoque -= item.quantidade;
+                products[productIndex].ultimaVenda = new Date().toISOString();
+            }
+        });
+        this.saveToLocal('produtos', products);
+        
+        console.log('✅ Venda registrada LOCALMENTE:', sale.id);
+        
+        // 2️⃣ TENTA ENVIAR PARA GOOGLE SHEETS
+        setTimeout(async () => {
+            try {
+                const result = await this.callGoogleSheets('addSale', sale);
+                
+                if (result.success) {
+                    console.log('☁️  Venda salva no GOOGLE SHEETS');
+                    
+                    if (typeof showNotification === 'function') {
+                        showNotification('Venda sincronizada com Google Sheets!', 'success');
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️  Venda salva apenas localmente');
+            }
+        }, 500);
+        
+        return sale;
+    }
+
+    static getSales(filter = {}) {
+        const sales = this.loadFromLocal('vendas') || [];
+        
+        // Aplica filtros
+        let filteredSales = [...sales];
+        
+        if (filter.mes !== undefined) {
+            filteredSales = filteredSales.filter(s => {
+                const saleDate = new Date(s.data);
+                return saleDate.getMonth() === filter.mes;
+            });
+        }
+        
+        if (filter.status) {
+            filteredSales = filteredSales.filter(s => s.status === filter.status);
+        }
+        
+        return filteredSales;
+    }
+
+    // ========== OUTRAS FUNÇÕES ==========
     static deleteProduct(id) {
         const products = this.loadFromLocal('produtos');
         const filtered = products.filter(p => p.id !== id);
@@ -49,162 +319,43 @@ class Database {
         return filtered.length < products.length;
     }
 
-    // Método para buscar produtos
-    static getProducts(filter = {}) {
-        let products = this.loadFromLocal('produtos');
+    // ========== INICIALIZAÇÃO ==========
+    static async initialize() {
+        console.log('🚀 Inicializando Database...');
         
-        // Aplicar filtros
-        if (filter.categoria) {
-            products = products.filter(p => p.categoria === filter.categoria);
-        }
+        // Testa conexão com Google Sheets
+        const connected = await this.testConnection();
         
-        if (filter.estoqueBaixo) {
-            const minStock = parseInt(localStorage.getItem('estoqueMinimo')) || 5;
-            products = products.filter(p => p.estoque <= minStock);
-        }
-        
-        if (filter.search) {
-            const searchTerm = filter.search.toLowerCase();
-            products = products.filter(p => 
-                p.nome.toLowerCase().includes(searchTerm) ||
-                p.descricao.toLowerCase().includes(searchTerm) ||
-                p.codigo.toLowerCase().includes(searchTerm)
-            );
-        }
-        
-        return products;
-    }
-
-    // Método para registrar uma venda
-    static addSale(sale) {
-        const sales = this.loadFromLocal('vendas');
-        sale.id = Date.now().toString();
-        sale.data = new Date().toISOString();
-        sale.status = sale.status || 'concluida';
-        sales.push(sale);
-        
-        // Atualizar estoque dos produtos vendidos
-        sale.produtos.forEach(item => {
-            const products = this.loadFromLocal('produtos');
-            const productIndex = products.findIndex(p => p.id === item.produtoId);
-            if (productIndex !== -1) {
-                products[productIndex].estoque -= item.quantidade;
-                products[productIndex].ultimaVenda = new Date().toISOString();
-            }
-        });
-        
-        this.saveToLocal('produtos', products);
-        this.saveToLocal('vendas', sales);
-        
-        return sale;
-    }
-
-    // Método para obter vendas
-    static getSales(filter = {}) {
-        let sales = this.loadFromLocal('vendas');
-        
-        if (filter.mes) {
-            sales = sales.filter(s => {
-                const saleDate = new Date(s.data);
-                return saleDate.getMonth() === filter.mes;
-            });
-        }
-        
-        if (filter.status) {
-            sales = sales.filter(s => s.status === filter.status);
-        }
-        
-        return sales;
-    }
-
-    // Método para obter relatórios
-    static getReports(type, periodo) {
-        const sales = this.loadFromLocal('vendas');
-        const products = this.loadFromLocal('produtos');
-        
-        switch(type) {
-            case 'vendas-por-mes':
-                return this.getMonthlySales(sales, periodo);
-            case 'produtos-mais-vendidos':
-                return this.getTopProducts(sales, periodo);
-            case 'lucratividade':
-                return this.getProfitability(sales, products, periodo);
-            default:
-                return {};
-        }
-    }
-
-    // Método auxiliar: vendas por mês
-    static getMonthlySales(sales, periodo) {
-        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        const resultado = {};
-        
-        sales.forEach(sale => {
-            const data = new Date(sale.data);
-            const mesAno = `${meses[data.getMonth()]}/${data.getFullYear()}`;
+        if (connected) {
+            console.log('✅ Conectado ao Google Sheets');
             
-            if (!resultado[mesAno]) {
-                resultado[mesAno] = 0;
-            }
-            
-            resultado[mesAno] += sale.valorTotal;
-        });
-        
-        return resultado;
-    }
-
-    // Método auxiliar: produtos mais vendidos
-    static getTopProducts(sales, periodo) {
-        const produtosMap = {};
-        
-        sales.forEach(sale => {
-            sale.produtos.forEach(item => {
-                if (!produtosMap[item.produtoId]) {
-                    produtosMap[item.produtoId] = {
-                        nome: item.nome,
-                        quantidade: 0,
-                        valorTotal: 0
-                    };
+            // Tenta sincronizar dados
+            try {
+                const productsResult = await this.callGoogleSheets('getProducts');
+                if (productsResult.success) {
+                    this.saveToLocal('produtos_cache', productsResult.data);
+                    console.log('📦 Dados sincronizados do Google Sheets');
                 }
-                
-                produtosMap[item.produtoId].quantidade += item.quantidade;
-                produtosMap[item.produtoId].valorTotal += item.precoUnitario * item.quantidade;
-            });
-        });
+            } catch (error) {
+                console.log('⚠️  Usando dados locais');
+            }
+        } else {
+            console.log('⚠️  Modo offline - usando dados locais');
+        }
         
-        // Converter para array e ordenar por quantidade
-        return Object.values(produtosMap)
-            .sort((a, b) => b.quantidade - a.quantidade)
-            .slice(0, 10);
-    }
-
-    // Método auxiliar: lucratividade
-    static getProfitability(sales, products, periodo) {
-        const resultado = {
-            faturamentoTotal: 0,
-            custoTotal: 0,
-            lucroTotal: 0,
-            margemMedia: 0
-        };
-        
-        sales.forEach(sale => {
-            resultado.faturamentoTotal += sale.valorTotal;
-            
-            sale.produtos.forEach(item => {
-                const produto = products.find(p => p.id === item.produtoId);
-                if (produto) {
-                    resultado.custoTotal += produto.custo * item.quantidade;
-                }
-            });
-        });
-        
-        resultado.lucroTotal = resultado.faturamentoTotal - resultado.custoTotal;
-        resultado.margemMedia = resultado.faturamentoTotal > 0 ? 
-            (resultado.lucroTotal / resultado.faturamentoTotal) * 100 : 0;
-        
-        return resultado;
+        return connected;
     }
 }
 
-// Exportar para uso global
+// Inicializa automaticamente
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Database carregado');
+    
+    // Inicializa em segundo plano
+    setTimeout(() => {
+        Database.initialize();
+    }, 2000);
+});
+
+// Exporta para uso global
 window.Database = Database;
