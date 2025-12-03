@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - BeautyStore</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-palette"></i>
+            <h2>BeautyStore</h2>
+        </div>
+        
+        <nav class="menu">
+            <a href="../../index.html" class="menu-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="../precificacao/index.html" class="menu-item">
+                <i class="fas fa-calculator"></i> Precificação
+            </a>
+            <a href="index.html" class="menu-item active">
+                <i class="fas fa-box"></i> Produtos
+            </a>
+            <a href="../estoque/index.html" class="menu-item">
+                <i class="fas fa-warehouse"></i> Estoque
+            </a>
+            <a href="../vendas/index.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> Vendas
+            </a>
+            <a href="../relatorios/index.html" class="menu-item">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-products" placeholder="Buscar produtos...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-filter" onclick="toggleFilter()">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+                <button class="btn-export" onclick="exportarProdutos()">
+                    <i class="fas fa-file-export"></i> Exportar
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="page-header">
+                <div class="header-title">
+                    <h1><i class="fas fa-box"></i> Catálogo de Produtos</h1>
+                    <p>Gerencie seu catálogo de maquiagens e skincare</p>
+                </div>
+                <button class="btn-add-product" onclick="abrirModalCadastro()">
+                    <i class="fas fa-plus"></i> Novo Produto
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-container" id="filters-container" style="display: none;">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Categoria:</label>
+                        <select id="filter-categoria">
+                            <option value="">Todas</option>
+                            <option value="maquiagem">Maquiagem</option>
+                            <option value="skincare">Skincare</option>
+                            <option value="acessorios">Acessórios</option>
+                            <option value="fragrancias">Fragrâncias</option>
+                            <option value="cabelos">Cabelos</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status Estoque:</label>
+                        <select id="filter-estoque">
+                            <option value="">Todos</option>
+                            <option value="baixo">Estoque Baixo</option>
+                            <option value="normal">Estoque Normal</option>
+                            <option value="sem">Sem Estoque</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ordenar por:</label>
+                        <select id="filter-ordem">
+                            <option value="nome">Nome (A-Z)</option>
+                            <option value="nome-desc">Nome (Z-A)</option>
+                            <option value="estoque">Estoque (Baixo-Alto)</option>
+                            <option value="estoque-desc">Estoque (Alto-Baixo)</option>
+                            <option value="custo">Custo (Baixo-Alto)</option>
+                            <option value="custo-desc">Custo (Alto-Baixo)</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn-apply" onclick="aplicarFiltros()">
+                            <i class="fas fa-check"></i> Aplicar
+                        </button>
+                        <button class="btn-clear" onclick="limparFiltros()">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards de Produtos -->
+            <div class="products-grid" id="products-grid">
+                <!-- Produtos serão carregados via JavaScript -->
+            </div>
+
+            <!-- Tabela de Produtos (Visualização Alternativa) -->
+            <div class="products-table-container">
+                <div class="view-toggle">
+                    <button class="btn-view active" data-view="grid">
+                        <i class="fas fa-th-large"></i> Grade
+                    </button>
+                    <button class="btn-view" data-view="table">
+                        <i class="fas fa-list"></i> Lista
+                    </button>
+                </div>
+                
+                <table id="products-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Estoque</th>
+                            <th>Custo</th>
+                            <th>Preço Sugerido</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- Produtos serão carregados via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro/Edição -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-box"></i> <span id="modal-title">Novo Produto</span></h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <div class="form-columns">
+                        <div class="form-column">
+                            <div class="form-section">
+                                <h4>Informações Básicas</h4>
+                                <div class="form-group">
+                                    <label for="product-name">Nome do Produto *</label>
+                                    <input type="text" id="product-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-code">Código do Produto</label>
+                                    <input type="text" id="product-code" placeholder="Gerado automaticamente">
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-category">Categoria *</label>
+                                    <select id="product-category" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="maquiagem">Maquiagem</option>
+                                        <option value="skincare">Skincare</option>
+                                        <option value="acessorios">Acessórios</option>
+                                        <option value="fragrancias">Fragrâncias</option>
+                                        <option value="cabelos">Cabelos</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-brand">Marca</label>
+                                    <input type="text" id="product-brand">
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Estoque</h4>
+                                <div class="form-group">
+                                    <label for="product-stock">Quantidade em Estoque *</label>
+                                    <input type="number" id="product-stock" min="0" required value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-min-stock">Estoque Mínimo</label>
+                                    <input type="number" id="product-min-stock" min="1" value="5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-column">
+                            <div class="form-section">
+                                <h4>Precificação</h4>
+                                <div class="form-group">
+                                    <label for="product-cost">Custo de Compra (R$) *</label>
+                                    <input type="number" id="product-cost" step="0.01" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-suggested-price">Preço Sugerido (R$)</label>
+                                    <input type="number" id="product-suggested-price" step="0.01" min="0" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="btn-calculate" onclick="irParaPrecificacao()">
+                                        <i class="fas fa-calculator"></i> Calcular Precificação
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Detalhes</h4>
+                                <div class="form-group">
+                                    <label for="product-description">Descrição</label>
+                                    <textarea id="product-description" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-supplier">Fornecedor</label>
+                                    <input type="text" id="product-supplier">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="fecharModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i> Salvar Produto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmação</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Tem certeza que deseja excluir este produto?</p>
+                <div class="confirm-actions">
+                    <button class="btn-cancel" onclick="fecharConfirmModal()">Cancelar</button>
+                    <button class="btn-confirm" id="confirm-action">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="../../config/database.js"></script>
+</body>
+</html>

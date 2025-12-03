@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas - BeautyStore</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-palette"></i>
+            <h2>BeautyStore</h2>
+        </div>
+        
+        <nav class="menu">
+            <a href="../../index.html" class="menu-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="../precificacao/index.html" class="menu-item">
+                <i class="fas fa-calculator"></i> Precificação
+            </a>
+            <a href="../produtos/index.html" class="menu-item">
+                <i class="fas fa-box"></i> Produtos
+            </a>
+            <a href="../estoque/index.html" class="menu-item">
+                <i class="fas fa-warehouse"></i> Estoque
+            </a>
+            <a href="index.html" class="menu-item active">
+                <i class="fas fa-shopping-cart"></i> Vendas
+            </a>
+            <a href="../relatorios/index.html" class="menu-item">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-sales" placeholder="Buscar vendas...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-new-sale" onclick="iniciarNovaVenda()">
+                    <i class="fas fa-cash-register"></i> Nova Venda
+                </button>
+                <button class="btn-reports" onclick="abrirRelatorios()">
+                    <i class="fas fa-chart-pie"></i> Relatórios
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Modo Nova Venda -->
+            <div id="nova-venda-container" style="display: none;">
+                <div class="venda-header">
+                    <h1><i class="fas fa-cash-register"></i> Nova Venda</h1>
+                    <div class="venda-actions">
+                        <button class="btn-cancel" onclick="cancelarVenda()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="btn-save" onclick="finalizarVenda()">
+                            <i class="fas fa-check"></i> Finalizar Venda
+                        </button>
+                    </div>
+                </div>
+
+                <div class="venda-container">
+                    <!-- Painel de Produtos -->
+                    <div class="venda-panel products-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-boxes"></i> Produtos</h3>
+                            <div class="search-products">
+                                <input type="text" id="search-venda-products" placeholder="Buscar produto...">
+                                <button><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                        <div class="products-grid" id="venda-products-grid">
+                            <!-- Produtos serão carregados via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Painel do Carrinho -->
+                    <div class="venda-panel cart-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
+                            <div class="cart-info">
+                                <span id="cart-count">0 itens</span>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-items" id="cart-items">
+                            <!-- Itens do carrinho serão carregados via JavaScript -->
+                            <div class="empty-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Seu carrinho está vazio</p>
+                                <small>Adicione produtos clicando neles</small>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-summary">
+                            <div class="summary-item">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Desconto:</span>
+                                <div class="discount-control">
+                                    <input type="number" id="desconto" min="0" max="100" value="0" onchange="calcularTotal()">
+                                    <span>%</span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <span>Taxas (3.5%):</span>
+                                <span id="taxas">R$ 0,00</span>
+                            </div>
+                            <div class="summary-item total">
+                                <span>TOTAL:</span>
+                                <span id="total-venda">R$ 0,00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <h4><i class="fas fa-credit-card"></i> Forma de Pagamento</h4>
+                            <div class="methods-grid">
+                                <label class="method-option">
+                                    <input type="radio" name="pagamento" value="dinheiro" checked>
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span>Dinheiro</span>
+                                </label>
+                                <label class="method-option">
+                                    <input type="radio" name="pagamento" value="cartao_credito">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Cartão Crédito</span>
+                                </label>
+                                <label class="method-option">
+                                    <input type="radio" name="pagamento" value="cartao_debito">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Cartão Débito</span>
+                                </label>
+                                <label class="method-option">
+                                    <input type="radio" name="pagamento" value="pix">
+                                    <i class="fas fa-qrcode"></i>
+                                    <span>PIX</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modo Lista de Vendas -->
+            <div id="lista-vendas-container">
+                <div class="page-header">
+                    <h1><i class="fas fa-shopping-cart"></i> Histórico de Vendas</h1>
+                    <p>Gerencie e acompanhe todas as vendas realizadas</p>
+                </div>
+
+                <!-- Filtros -->
+                <div class="sales-filters">
+                    <div class="filter-group">
+                        <label>Período:</label>
+                        <select id="filter-period">
+                            <option value="hoje">Hoje</option>
+                            <option value="semana">Esta Semana</option>
+                            <option value="mes" selected>Este Mês</option>
+                            <option value="trimestre">Este Trimestre</option>
+                            <option value="ano">Este Ano</option>
+                            <option value="personalizado">Personalizado</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select id="filter-status">
+                            <option value="">Todos</option>
+                            <option value="concluida">Concluídas</option>
+                            <option value="cancelada">Canceladas</option>
+                            <option value="pendente">Pendentes</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Forma de Pagamento:</label>
+                        <select id="filter-payment">
+                            <option value="">Todas</option>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="cartao_credito">Cartão Crédito</option>
+                            <option value="cartao_debito">Cartão Débito</option>
+                            <option value="pix">PIX</option>
+                        </select>
+                    </div>
+                    <button class="btn-apply" onclick="aplicarFiltrosVendas()">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+
+                <!-- Estatísticas de Vendas -->
+                <div class="sales-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e8f5e9;">
+                            <i class="fas fa-shopping-cart" style="color: #2e7d32;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-sales">0</h3>
+                            <p>Vendas Totais</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e3f2fd;">
+                            <i class="fas fa-dollar-sign" style="color: #1976d2;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-revenue">R$ 0,00</h3>
+                            <p>Faturamento Total</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f3e5f5;">
+                            <i class="fas fa-credit-card" style="color: #9c27b0;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avg-ticket">R$ 0,00</h3>
+                            <p>Ticket Médio</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fff3e0;">
+                            <i class="fas fa-chart-line" style="color: #ef6c00;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="best-day">-</h3>
+                            <p>Melhor Dia</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Vendas -->
+                <div class="sales-table-container">
+                    <div class="table-actions">
+                        <button class="btn-export" onclick="exportarVendas()">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                        <button class="btn-print" onclick="imprimirVendas()">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </div>
+                    
+                    <table id="sales-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data/Hora</th>
+                                <th>Produtos</th>
+                                <th>Quantidade</th>
+                                <th>Valor</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table-body">
+                            <!-- Vendas serão carregadas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da Venda -->
+    <div id="sale-details-modal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt"></i> Detalhes da Venda</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="sale-details" id="sale-details-content">
+                    <!-- Detalhes serão carregados via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cancelamento -->
+    <div id="cancel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Cancelar Venda</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="cancel-message">Tem certeza que deseja cancelar esta venda?</p>
+                <div class="form-group">
+                    <label for="cancel-reason">Motivo do Cancelamento:</label>
+                    <textarea id="cancel-reason" rows="3" placeholder="Descreva o motivo do cancelamento..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="fecharCancelModal()">
+                        Não Cancelar
+                    </button>
+                    <button class="btn-confirm" id="confirm-cancel">
+                        <i class="fas fa-times"></i> Confirmar Cancelamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="../../config/database.js"></script>
+</body>
+</html>

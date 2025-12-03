@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - BeautyStore</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-palette"></i>
+            <h2>BeautyStore</h2>
+        </div>
+        
+        <nav class="menu">
+            <a href="../../index.html" class="menu-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="../precificacao/index.html" class="menu-item">
+                <i class="fas fa-calculator"></i> Precificação
+            </a>
+            <a href="../produtos/index.html" class="menu-item">
+                <i class="fas fa-box"></i> Produtos
+            </a>
+            <a href="../estoque/index.html" class="menu-item">
+                <i class="fas fa-warehouse"></i> Estoque
+            </a>
+            <a href="../vendas/index.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> Vendas
+            </a>
+            <a href="index.html" class="menu-item active">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-reports" placeholder="Buscar relatórios...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-refresh" onclick="carregarRelatorios()">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+                <button class="btn-export-all" onclick="exportarTodosRelatorios()">
+                    <i class="fas fa-file-export"></i> Exportar Tudo
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-bar"></i> Relatórios e Análises</h1>
+                <p>Analise o desempenho da sua loja com dados detalhados</p>
+            </div>
+
+            <!-- Filtros de Período -->
+            <div class="period-filters">
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar-alt"></i> Período de Análise</label>
+                    <div class="period-selector">
+                        <select id="report-period">
+                            <option value="7">Últimos 7 dias</option>
+                            <option value="30" selected>Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                            <option value="180">Últimos 6 meses</option>
+                            <option value="365">Último ano</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                        <div id="custom-period" style="display: none;">
+                            <input type="date" id="start-date">
+                            <span>até</span>
+                            <input type="date" id="end-date">
+                        </div>
+                        <button onclick="aplicarFiltroPeriodo()">
+                            <i class="fas fa-filter"></i> Aplicar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Principais -->
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <h3><i class="fas fa-dollar-sign"></i> Faturamento</h3>
+                        <span class="kpi-trend positive">+12.5%</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-revenue">R$ 0,00</div>
+                    <div class="kpi-period" id="kpi-revenue-period">Este mês</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <h3><i class="fas fa-shopping-cart"></i> Vendas</h3>
+                        <span class="kpi-trend positive">+8.2%</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-sales">0</div>
+                    <div class="kpi-period" id="kpi-sales-period">Este mês</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <h3><i class="fas fa-box"></i> Produtos Vendidos</h3>
+                        <span class="kpi-trend positive">+15.3%</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-products-sold">0</div>
+                    <div class="kpi-period" id="kpi-products-period">Este mês</div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <h3><i class="fas fa-chart-line"></i> Ticket Médio</h3>
+                        <span class="kpi-trend negative">-2.1%</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-avg-ticket">R$ 0,00</div>
+                    <div class="kpi-period" id="kpi-ticket-period">Este mês</div>
+                </div>
+            </div>
+
+            <!-- Gráficos Principais -->
+            <div class="main-charts">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Faturamento por Dia</h3>
+                        <select id="chart-revenue-type">
+                            <option value="daily">Diário</option>
+                            <option value="weekly">Semanal</option>
+                            <option value="monthly">Mensal</option>
+                        </select>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                        <select id="chart-category-period">
+                            <option value="30">30 dias</option>
+                            <option value="90">90 dias</option>
+                            <option value="180">6 meses</option>
+                        </select>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios Detalhados -->
+            <div class="detailed-reports">
+                <div class="reports-tabs">
+                    <button class="tab-btn active" data-tab="sales-report">
+                        <i class="fas fa-shopping-cart"></i> Relatório de Vendas
+                    </button>
+                    <button class="tab-btn" data-tab="products-report">
+                        <i class="fas fa-box"></i> Produtos Mais Vendidos
+                    </button>
+                    <button class="tab-btn" data-tab="stock-report">
+                        <i class="fas fa-warehouse"></i> Análise de Estoque
+                    </button>
+                    <button class="tab-btn" data-tab="financial-report">
+                        <i class="fas fa-money-bill-wave"></i> Financeiro
+                    </button>
+                </div>
+                
+                <div class="reports-content">
+                    <!-- Relatório de Vendas -->
+                    <div id="sales-report" class="report-tab active">
+                        <div class="report-actions">
+                            <button class="btn-export" onclick="exportarRelatorioVendas()">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                            <button class="btn-print" onclick="imprimirRelatorioVendas()">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                        
+                        <div class="report-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Vendas</th>
+                                        <th>Faturamento</th>
+                                        <th>Ticket Médio</th>
+                                        <th>Produtos Vendidos</th>
+                                        <th>Margem Média</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sales-report-body">
+                                    <!-- Dados serão carregados via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="report-summary">
+                            <h4><i class="fas fa-chart-bar"></i> Análise de Tendência</h4>
+                            <div class="trend-analysis" id="sales-trend-analysis">
+                                <!-- Análise será carregada via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Produtos Mais Vendidos -->
+                    <div id="products-report" class="report-tab">
+                        <div class="report-actions">
+                            <button class="btn-export" onclick="exportarRelatorioProdutos()">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                        </div>
+                        
+                        <div class="top-products-list" id="top-products-list">
+                            <!-- Produtos serão carregados via JavaScript -->
+                        </div>
+                        
+                        <div class="products-chart">
+                            <canvas id="products-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Análise de Estoque -->
+                    <div id="stock-report" class="report-tab">
+                        <div class="stock-analysis">
+                            <div class="stock-metrics">
+                                <div class="metric-card">
+                                    <h4><i class="fas fa-boxes"></i> Valor em Estoque</h4>
+                                    <div class="metric-value" id="stock-value">R$ 0,00</div>
+                                </div>
+                                <div class="metric-card">
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Estoque Baixo</h4>
+                                    <div class="metric-value" id="low-stock-count">0</div>
+                                </div>
+                                <div class="metric-card">
+                                    <h4><i class="fas fa-times-circle"></i> Sem Estoque</h4>
+                                    <div class="metric-value" id="out-of-stock-count">0</div>
+                                </div>
+                                <div class="metric-card">
+                                    <h4><i class="fas fa-chart-line"></i> Giro de Estoque</h4>
+                                    <div class="metric-value" id="stock-turnover">0.0</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stock-table">
+                                <h4><i class="fas fa-list"></i> Produtos que Precisam de Reposição</h4>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Estoque Atual</th>
+                                            <th>Estoque Mínimo</th>
+                                            <th>Vendas (30 dias)</th>
+                                            <th>Dias Restantes</th>
+                                            <th>Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reorder-table-body">
+                                        <!-- Dados serão carregados via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Relatório Financeiro -->
+                    <div id="financial-report" class="report-tab">
+                        <div class="financial-summary">
+                            <div class="financial-card">
+                                <h4><i class="fas fa-money-bill-wave"></i> Receitas</h4>
+                                <div class="financial-value positive" id="total-revenue">R$ 0,00</div>
+                                <div class="financial-detail">Vendas: <span id="sales-revenue">R$ 0,00</span></div>
+                            </div>
+                            
+                            <div class="financial-card">
+                                <h4><i class="fas fa-shopping-cart"></i> Custos</h4>
+                                <div class="financial-value negative" id="total-costs">R$ 0,00</div>
+                                <div class="financial-detail">Custo Mercadorias: <span id="product-costs">R$ 0,00</span></div>
+                            </div>
+                            
+                            <div class="financial-card">
+                                <h4><i class="fas fa-chart-line"></i> Lucratividade</h4>
+                                <div class="financial-value" id="profit-margin">0%</div>
+                                <div class="financial-detail">Lucro Líquido: <span id="net-profit">R$ 0,00</span></div>
+                            </div>
+                            
+                            <div class="financial-card">
+                                <h4><i class="fas fa-calculator"></i> ROI</h4>
+                                <div class="financial-value" id="roi-percentage">0%</div>
+                                <div class="financial-detail">Retorno sobre Investimento</div>
+                            </div>
+                        </div>
+                        
+                        <div class="financial-charts">
+                            <div class="chart-container">
+                                <h4><i class="fas fa-chart-pie"></i> Composição de Custos</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="costs-chart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <h4><i class="fas fa-chart-bar"></i> Evolução do Lucro</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="profit-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios Automatizados -->
+            <div class="automated-reports">
+                <h3><i class="fas fa-robot"></i> Relatórios Automatizados</h3>
+                <div class="automated-grid">
+                    <div class="auto-report-card">
+                        <i class="fas fa-envelope"></i>
+                        <h4>Relatório Diário</h4>
+                        <p>Receba um resumo diário por e-mail</p>
+                        <label class="switch">
+                            <input type="checkbox" id="daily-report-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="auto-report-card">
+                        <i class="fas fa-calendar-week"></i>
+                        <h4>Relatório Semanal</h4>
+                        <p>Análise completa toda segunda-feira</p>
+                        <label class="switch">
+                            <input type="checkbox" id="weekly-report-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="auto-report-card">
+                        <i class="fas fa-bell"></i>
+                        <h4>Alertas de Estoque</h4>
+                        <p>Notificações quando estoque estiver baixo</p>
+                        <label class="switch">
+                            <input type="checkbox" id="stock-alert-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="auto-report-card">
+                        <i class="fas fa-file-pdf"></i>
+                        <h4>Exportar para PDF</h4>
+                        <p>Gere relatórios em PDF automaticamente</p>
+                        <button class="btn-generate" onclick="gerarPDF()">
+                            <i class="fas fa-download"></i> Gerar Agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuração de Relatórios -->
+    <div id="reports-config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Configurar Relatórios</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Configurações serão adicionadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="../../config/database.js"></script>
+</body>
+</html>

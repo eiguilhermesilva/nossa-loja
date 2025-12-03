@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💄 Sistema Lojinha de Maquiagem</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-palette"></i>
+            <h2>BeautyStore</h2>
+        </div>
+        
+        <nav class="menu">
+            <a href="index.html" class="menu-item active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="modules/precificacao/index.html" class="menu-item">
+                <i class="fas fa-calculator"></i> Precificação
+            </a>
+            <a href="modules/produtos/index.html" class="menu-item">
+                <i class="fas fa-box"></i> Produtos
+            </a>
+            <a href="modules/estoque/index.html" class="menu-item">
+                <i class="fas fa-warehouse"></i> Estoque
+            </a>
+            <a href="modules/vendas/index.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> Vendas
+            </a>
+            <a href="modules/relatorios/index.html" class="menu-item">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+            <a href="#" class="menu-item" id="config-btn">
+                <i class="fas fa-cog"></i> Configurações
+            </a>
+        </nav>
+        
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Administrador</span>
+                <span class="user-role">Proprietário</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar produto, venda ou cliente...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="btn-help">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Dashboard Stats -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #e3f2fd;">
+                        <i class="fas fa-boxes" style="color: #1976d2;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-produtos">0</h3>
+                        <p>Produtos Cadastrados</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #f3e5f5;">
+                        <i class="fas fa-shopping-cart" style="color: #7b1fa2;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-vendas">0</h3>
+                        <p>Vendas do Mês</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #e8f5e9;">
+                        <i class="fas fa-chart-line" style="color: #388e3c;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="faturamento">R$ 0,00</h3>
+                        <p>Faturamento Mensal</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #fff3e0;">
+                        <i class="fas fa-exclamation-triangle" style="color: #f57c00;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="baixo-estoque">0</h3>
+                        <p>Produtos com Estoque Baixo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Ações Rápidas</h2>
+                <div class="action-buttons">
+                    <a href="modules/vendas/index.html" class="action-btn">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Nova Venda</span>
+                    </a>
+                    <a href="modules/produtos/index.html" class="action-btn">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Cadastrar Produto</span>
+                    </a>
+                    <a href="modules/precificacao/index.html" class="action-btn">
+                        <i class="fas fa-calculator"></i>
+                        <span>Precificar Produto</span>
+                    </a>
+                    <a href="modules/estoque/index.html" class="action-btn">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Contar Estoque</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Sales -->
+            <div class="recent-sales">
+                <h2>Vendas Recentes</h2>
+                <div class="sales-table-container">
+                    <table id="sales-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table-body">
+                            <!-- Dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Low Stock Alert -->
+            <div class="low-stock-alert">
+                <h2><i class="fas fa-exclamation-circle"></i> Produtos com Estoque Baixo</h2>
+                <div class="alert-items" id="low-stock-items">
+                    <!-- Itens serão preenchidos via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Configurações do Sistema</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="config-section">
+                    <h4>Taxas e Impostos</h4>
+                    <div class="config-input">
+                        <label>Taxa de Cartão (%):</label>
+                        <input type="number" id="taxa-cartao-config" step="0.1" min="0" max="20">
+                    </div>
+                    <div class="config-input">
+                        <label>Impostos (%):</label>
+                        <input type="number" id="imposto-config" step="0.1" min="0" max="30">
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h4>Margem Padrão</h4>
+                    <div class="config-input">
+                        <label>Margem de Lucro (%):</label>
+                        <input type="number" id="margem-config" step="0.1" min="0" max="100">
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h4>Alerta de Estoque</h4>
+                    <div class="config-input">
+                        <label>Quantidade Mínima:</label>
+                        <input type="number" id="estoque-min-config" min="1">
+                    </div>
+                </div>
+                
+                <button id="save-config" class="btn-primary">
+                    <i class="fas fa-save"></i> Salvar Configurações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="config/database.js"></script>
+    <script src="config/auth.js"></script>
+</body>
+</html>

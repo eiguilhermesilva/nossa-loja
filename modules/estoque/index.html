@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - BeautyStore</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-palette"></i>
+            <h2>BeautyStore</h2>
+        </div>
+        
+        <nav class="menu">
+            <a href="../../index.html" class="menu-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="../precificacao/index.html" class="menu-item">
+                <i class="fas fa-calculator"></i> Precificação
+            </a>
+            <a href="../produtos/index.html" class="menu-item">
+                <i class="fas fa-box"></i> Produtos
+            </a>
+            <a href="index.html" class="menu-item active">
+                <i class="fas fa-warehouse"></i> Estoque
+            </a>
+            <a href="../vendas/index.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> Vendas
+            </a>
+            <a href="../relatorios/index.html" class="menu-item">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-stock" placeholder="Buscar no estoque...">
+            </div>
+            <div class="header-actions">
+                <button class="btn-inventory" onclick="iniciarContagem()">
+                    <i class="fas fa-clipboard-check"></i> Contagem
+                </button>
+                <button class="btn-report" onclick="gerarRelatorioEstoque()">
+                    <i class="fas fa-file-pdf"></i> Relatório
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="page-header">
+                <h1><i class="fas fa-warehouse"></i> Controle de Estoque</h1>
+                <p>Acompanhe e gerencie o estoque de seus produtos</p>
+            </div>
+
+            <!-- Estatísticas do Estoque -->
+            <div class="stock-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e8f5e9;">
+                        <i class="fas fa-boxes" style="color: #2e7d32;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-items">0</h3>
+                        <p>Total de Itens</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fff3e0;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef6c00;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="low-stock">0</h3>
+                        <p>Estoque Baixo</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #ffebee;">
+                        <i class="fas fa-times-circle" style="color: #d32f2f;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="out-of-stock">0</h3>
+                        <p>Sem Estoque</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e3f2fd;">
+                        <i class="fas fa-dollar-sign" style="color: #1976d2;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="stock-value">R$ 0,00</h3>
+                        <p>Valor em Estoque</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Rápidos -->
+            <div class="quick-controls">
+                <h3><i class="fas fa-bolt"></i> Controles Rápidos</h3>
+                <div class="controls-grid">
+                    <button class="control-btn" onclick="abrirModalMovimentacao('entrada')">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Entrada</span>
+                        <small>Registrar chegada</small>
+                    </button>
+                    <button class="control-btn" onclick="abrirModalMovimentacao('saida')">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Saída</span>
+                        <small>Registrar retirada</small>
+                    </button>
+                    <button class="control-btn" onclick="abrirModalMovimentacao('ajuste')">
+                        <i class="fas fa-adjust"></i>
+                        <span>Ajuste</span>
+                        <small>Corrigir estoque</small>
+                    </button>
+                    <button class="control-btn" onclick="abrirModalMovimentacao('transferencia')">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transferência</span>
+                        <small>Mudar localização</small>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela de Estoque -->
+            <div class="stock-table-container">
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> Produtos em Estoque</h3>
+                    <div class="table-actions">
+                        <button class="btn-refresh" onclick="carregarEstoque()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                        <button class="btn-print" onclick="imprimirEstoque()">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="stock-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Estoque Atual</th>
+                                <th>Mínimo</th>
+                                <th>Status</th>
+                                <th>Localização</th>
+                                <th>Última Mov.</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body">
+                            <!-- Dados serão carregados via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-footer">
+                    <div class="pagination">
+                        <button class="btn-prev" onclick="mudarPagina(-1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="page-info">Página 1 de 1</span>
+                        <button class="btn-next" onclick="mudarPagina(1)">
+                            Próxima <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico de Movimentações -->
+            <div class="movements-history">
+                <h3><i class="fas fa-history"></i> Histórico de Movimentações</h3>
+                <div class="history-filters">
+                    <select id="filter-type">
+                        <option value="">Todos os tipos</option>
+                        <option value="entrada">Entradas</option>
+                        <option value="saida">Saídas</option>
+                        <option value="ajuste">Ajustes</option>
+                        <option value="venda">Vendas</option>
+                    </select>
+                    <input type="date" id="filter-date-start">
+                    <input type="date" id="filter-date-end">
+                    <button onclick="filtrarHistorico()">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+                <div class="history-table-container">
+                    <table id="movements-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Saldo Anterior</th>
+                                <th>Saldo Atual</th>
+                                <th>Responsável</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movements-table-body">
+                            <!-- Histórico será carregado via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Movimentação -->
+    <div id="movement-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exchange-alt"></i> <span id="movement-title">Nova Movimentação</span></h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="movement-form">
+                    <input type="hidden" id="movement-type">
+                    
+                    <div class="form-group">
+                        <label for="movement-product">Produto *</label>
+                        <select id="movement-product" required>
+                            <option value="">Selecione um produto...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="movement-quantity">Quantidade *</label>
+                            <input type="number" id="movement-quantity" min="1" required>
+                        </div>
+                        <div class="form-group" id="unit-measure-container">
+                            <label>Unidade</label>
+                            <div class="unit-display">unidades</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movement-reason">Motivo *</label>
+                        <select id="movement-reason" required>
+                            <option value="">Selecione um motivo...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="movement-notes">Observações</label>
+                        <textarea id="movement-notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="location-group">
+                        <label for="movement-location">Localização</label>
+                        <select id="movement-location">
+                            <option value="prateleira_a">Prateleira A</option>
+                            <option value="prateleira_b">Prateleira B</option>
+                            <option value="prateleira_c">Prateleira C</option>
+                            <option value="estoque_principal">Estoque Principal</option>
+                            <option value="vitrine">Vitrine</option>
+                        </select>
+                    </div>
+                    
+                    <div class="current-stock-info" id="current-stock-info">
+                        <!-- Informações do estoque atual serão exibidas aqui -->
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="fecharMovementModal()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i> Registrar Movimentação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Contagem -->
+    <div id="inventory-modal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-clipboard-check"></i> Contagem de Estoque</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="inventory-instructions">
+                    <p><strong>Instruções:</strong> Conte fisicamente cada produto e registre a quantidade real encontrada.</p>
+                </div>
+                
+                <div class="inventory-list" id="inventory-list">
+                    <!-- Lista de produtos para contagem será carregada aqui -->
+                </div>
+                
+                <div class="inventory-summary">
+                    <h4>Resumo da Contagem</h4>
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <span>Produtos Contados:</span>
+                            <strong id="counted-items">0</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Diferenças Encontradas:</span>
+                            <strong id="differences-count">0</strong>
+                        </div>
+                        <div class="summary-item">
+                            <span>Status:</span>
+                            <strong id="inventory-status">Não iniciado</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="inventory-actions">
+                    <button class="btn-secondary" onclick="cancelarContagem()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button class="btn-primary" onclick="finalizarContagem()">
+                        <i class="fas fa-check"></i> Finalizar Contagem
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="../../config/database.js"></script>
+</body>
+</html>
