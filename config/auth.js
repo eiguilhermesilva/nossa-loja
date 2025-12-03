@@ -1,6 +1,6 @@
-// Sistema de autenticação simples para o BeautyStore
-// NOTA: Esta é uma autenticação básica para demonstração
-// Em produção, use um sistema de autenticação mais seguro
+ Sistema de autenticação simples para o BeautyStore
+ NOTA Esta é uma autenticação básica para demonstração
+ Em produção, use um sistema de autenticação mais seguro
 
 class AuthSystem {
     constructor() {
@@ -9,27 +9,28 @@ class AuthSystem {
     }
 
     init() {
-        // Verificar se há usuário logado
+         Verificar se há usuário logado
         this.checkLoginStatus();
         
-        // Configurar eventos de login/logout
+         Configurar eventos de loginlogout
         this.setupAuthEvents();
     }
 
-    // Verificar status de login
+     Verificar status de login
     checkLoginStatus() {
         const userData = localStorage.getItem('beautystore_user');
         if (userData) {
             this.currentUser = JSON.parse(userData);
             this.updateUIForLoggedInUser();
         } else {
-           // this.showLoginModal(); // Remova as Barras e o comentário para ativar o login
+             Comente a linha abaixo para DESATIVAR o login automático
+             this.showLoginModal();
         }
     }
 
-    // Mostrar modal de login
+     Mostrar modal de login
     showLoginModal() {
-        // Criar modal de login se não existir
+         Criar modal de login se não existir
         if (!document.getElementById('login-modal')) {
             this.createLoginModal();
         }
@@ -37,7 +38,7 @@ class AuthSystem {
         document.getElementById('login-modal').style.display = 'flex';
     }
 
-    // Criar modal de login
+     Criar modal de login
     createLoginModal() {
         const modal = document.createElement('div');
         modal.id = 'login-modal';
@@ -45,223 +46,223 @@ class AuthSystem {
         modal.style.display = 'flex';
         
         modal.innerHTML = `
-            <div class="modal-content small-modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-lock"></i> Acesso ao Sistema</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="login-container">
-                        <div class="login-logo">
-                            <i class="fas fa-palette"></i>
-                            <h2>BeautyStore</h2>
-                            <p>Sistema de Gerenciamento</p>
-                        </div>
+            div class=modal-content small-modal
+                div class=modal-header
+                    h3i class=fas fa-locki Acesso ao Sistemah3
+                div
+                div class=modal-body
+                    div class=login-container
+                        div class=login-logo
+                            i class=fas fa-palettei
+                            h2BeautyStoreh2
+                            pSistema de Gerenciamentop
+                        div
                         
-                        <form id="login-form">
-                            <div class="form-group">
-                                <label for="login-username"><i class="fas fa-user"></i> Usuário</label>
-                                <input type="text" id="login-username" placeholder="Digite seu usuário" required>
-                            </div>
+                        form id=login-form
+                            div class=form-group
+                                label for=login-usernamei class=fas fa-useri Usuáriolabel
+                                input type=text id=login-username placeholder=Digite seu usuário required
+                            div
                             
-                            <div class="form-group">
-                                <label for="login-password"><i class="fas fa-key"></i> Senha</label>
-                                <input type="password" id="login-password" placeholder="Digite sua senha" required>
-                            </div>
+                            div class=form-group
+                                label for=login-passwordi class=fas fa-keyi Senhalabel
+                                input type=password id=login-password placeholder=Digite sua senha required
+                            div
                             
-                            <div class="form-options">
-                                <label>
-                                    <input type="checkbox" id="remember-me">
+                            div class=form-options
+                                label
+                                    input type=checkbox id=remember-me
                                     Lembrar de mim
-                                </label>
-                            </div>
+                                label
+                            div
                             
-                            <button type="submit" class="btn-login">
-                                <i class="fas fa-sign-in-alt"></i> Entrar
-                            </button>
+                            button type=submit class=btn-login
+                                i class=fas fa-sign-in-alti Entrar
+                            button
                             
-                            <div class="login-info">
-                                <p><strong>Usuário de demonstração:</strong> admin</p>
-                                <p><strong>Senha:</strong> 123456</p>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                            div class=login-info
+                                pstrongUsuário de demonstraçãostrong adminp
+                                pstrongSenhastrong 123456p
+                            div
+                        form
+                    div
+                div
+            div
         `;
         
         document.body.appendChild(modal);
         
-        // Configurar evento do formulário
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+         Configurar evento do formulário
+        document.getElementById('login-form').addEventListener('submit', (e) = {
             e.preventDefault();
             this.login();
         });
         
-        // Adicionar estilos
+         Adicionar estilos
         this.addAuthStyles();
     }
 
-    // Adicionar estilos para autenticação
+     Adicionar estilos para autenticação
     addAuthStyles() {
         const styles = `
             .login-container {
-                text-align: center;
-                padding: 20px;
+                text-align center;
+                padding 20px;
             }
             
             .login-logo {
-                margin-bottom: 30px;
+                margin-bottom 30px;
             }
             
             .login-logo i {
-                font-size: 3rem;
-                color: #ff6b8b;
-                margin-bottom: 15px;
+                font-size 3rem;
+                color #ff6b8b;
+                margin-bottom 15px;
             }
             
             .login-logo h2 {
-                color: #333;
-                margin: 0 0 5px 0;
+                color #333;
+                margin 0 0 5px 0;
             }
             
             .login-logo p {
-                color: #666;
-                margin: 0;
+                color #666;
+                margin 0;
             }
             
             #login-form {
-                margin-top: 20px;
+                margin-top 20px;
             }
             
             #login-form .form-group {
-                margin-bottom: 20px;
-                text-align: left;
+                margin-bottom 20px;
+                text-align left;
             }
             
             #login-form label {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: #555;
-                font-weight: 500;
-                margin-bottom: 8px;
+                display flex;
+                align-items center;
+                gap 10px;
+                color #555;
+                font-weight 500;
+                margin-bottom 8px;
             }
             
-            #login-form input[type="text"],
-            #login-form input[type="password"] {
-                width: 100%;
-                padding: 12px;
-                border: 2px solid #e0e0e0;
-                border-radius: 8px;
-                font-size: 1rem;
-                transition: all 0.3s ease;
+            #login-form input[type=text],
+            #login-form input[type=password] {
+                width 100%;
+                padding 12px;
+                border 2px solid #e0e0e0;
+                border-radius 8px;
+                font-size 1rem;
+                transition all 0.3s ease;
             }
             
-            #login-form input:focus {
-                border-color: #ff6b8b;
-                outline: none;
+            #login-form inputfocus {
+                border-color #ff6b8b;
+                outline none;
             }
             
             .form-options {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                font-size: 0.9rem;
-                color: #666;
+                display flex;
+                justify-content space-between;
+                align-items center;
+                margin-bottom 20px;
+                font-size 0.9rem;
+                color #666;
             }
             
             .form-options label {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                cursor: pointer;
+                display flex;
+                align-items center;
+                gap 5px;
+                cursor pointer;
             }
             
             .btn-login {
-                background: linear-gradient(135deg, #ff6b8b, #6c63ff);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 15px;
-                font-size: 1.1rem;
-                font-weight: 600;
-                cursor: pointer;
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                transition: all 0.3s ease;
+                background linear-gradient(135deg, #ff6b8b, #6c63ff);
+                color white;
+                border none;
+                border-radius 8px;
+                padding 15px;
+                font-size 1.1rem;
+                font-weight 600;
+                cursor pointer;
+                width 100%;
+                display flex;
+                align-items center;
+                justify-content center;
+                gap 10px;
+                transition all 0.3s ease;
             }
             
-            .btn-login:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3);
+            .btn-loginhover {
+                transform translateY(-2px);
+                box-shadow 0 10px 20px rgba(255, 107, 139, 0.3);
             }
             
             .login-info {
-                margin-top: 20px;
-                padding: 15px;
-                background: #f8f9fa;
-                border-radius: 8px;
-                font-size: 0.9rem;
-                color: #666;
+                margin-top 20px;
+                padding 15px;
+                background #f8f9fa;
+                border-radius 8px;
+                font-size 0.9rem;
+                color #666;
             }
             
             .login-info p {
-                margin: 5px 0;
+                margin 5px 0;
             }
             
             .user-menu {
-                position: relative;
+                position relative;
             }
             
             .user-dropdown {
-                position: absolute;
-                top: 100%;
-                right: 0;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                min-width: 200px;
-                display: none;
-                z-index: 1000;
+                position absolute;
+                top 100%;
+                right 0;
+                background white;
+                border-radius 8px;
+                box-shadow 0 4px 15px rgba(0,0,0,0.1);
+                min-width 200px;
+                display none;
+                z-index 1000;
             }
             
             .user-dropdown.show {
-                display: block;
-                animation: slideDown 0.3s ease;
+                display block;
+                animation slideDown 0.3s ease;
             }
             
             .user-dropdown-item {
-                padding: 12px 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: #666;
-                text-decoration: none;
-                transition: all 0.3s ease;
-                border-bottom: 1px solid #eee;
+                padding 12px 20px;
+                display flex;
+                align-items center;
+                gap 10px;
+                color #666;
+                text-decoration none;
+                transition all 0.3s ease;
+                border-bottom 1px solid #eee;
             }
             
-            .user-dropdown-item:last-child {
-                border-bottom: none;
+            .user-dropdown-itemlast-child {
+                border-bottom none;
             }
             
-            .user-dropdown-item:hover {
-                background: #f8f9fa;
-                color: #ff6b8b;
+            .user-dropdown-itemhover {
+                background #f8f9fa;
+                color #ff6b8b;
             }
             
             @keyframes slideDown {
                 from {
-                    opacity: 0;
-                    transform: translateY(-10px);
+                    opacity 0;
+                    transform translateY(-10px);
                 }
                 to {
-                    opacity: 1;
-                    transform: translateY(0);
+                    opacity 1;
+                    transform translateY(0);
                 }
             }
         `;
@@ -271,30 +272,30 @@ class AuthSystem {
         document.head.appendChild(styleSheet);
     }
 
-    // Login
+     Login
     login() {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
         const remember = document.getElementById('remember-me').checked;
         
-        // Validação simples (em produção, use autenticação segura)
+         Validação simples (em produção, use autenticação segura)
         if (username === 'admin' && password === '123456') {
             this.currentUser = {
-                id: 1,
-                username: 'admin',
-                name: 'Administrador',
-                role: 'owner',
-                email: 'admin@beautystore.com'
+                id 1,
+                username 'admin',
+                name 'Administrador',
+                role 'owner',
+                email 'admin@beautystore.com'
             };
             
-            // Salvar sessão
+             Salvar sessão
             if (remember) {
                 localStorage.setItem('beautystore_user', JSON.stringify(this.currentUser));
             } else {
                 sessionStorage.setItem('beautystore_user', JSON.stringify(this.currentUser));
             }
             
-            // Fechar modal e atualizar UI
+             Fechar modal e atualizar UI
             document.getElementById('login-modal').style.display = 'none';
             this.updateUIForLoggedInUser();
             
@@ -304,49 +305,133 @@ class AuthSystem {
         }
     }
 
-    // Logout
+     Logout
     logout() {
-        // Limpar dados de sessão
+         Limpar dados de sessão
         localStorage.removeItem('beautystore_user');
         sessionStorage.removeItem('beautystore_user');
         
-        // Redirecionar para página inicial
+         Redirecionar para página inicial
         this.currentUser = null;
         window.location.href = 'index.html';
     }
 
-    // Atualizar UI para usuário logado
+     Atualizar UI para usuário logado
     updateUIForLoggedInUser() {
-        // Atualizar informações do usuário na sidebar
+         Atualizar informações do usuário na sidebar
         const userInfo = document.querySelector('.user-info');
         if (userInfo && this.currentUser) {
             userInfo.innerHTML = `
-                <div class="user-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-details">
-                    <span class="user-name">${this.currentUser.name}</span>
-                    <span class="user-role">${this.currentUser.role === 'owner' ? 'Proprietário' : 'Vendedor'}</span>
-                </div>
-                <div class="user-menu">
-                    <button class="user-menu-btn" onclick="auth.toggleUserMenu()">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="user-dropdown" id="user-dropdown">
-                        <a href="#" class="user-dropdown-item" onclick="auth.logout()">
-                            <i class="fas fa-sign-out-alt"></i>
+                div class=user-avatar
+                    i class=fas fa-user-circlei
+                div
+                div class=user-details
+                    span class=user-name${this.currentUser.name}span
+                    span class=user-role${this.currentUser.role === 'owner'  'Proprietário'  'Vendedor'}span
+                div
+                div class=user-menu
+                    button class=user-menu-btn onclick=auth.toggleUserMenu()
+                        i class=fas fa-chevron-downi
+                    button
+                    div class=user-dropdown id=user-dropdown
+                        a href=# class=user-dropdown-item onclick=auth.logout()
+                            i class=fas fa-sign-out-alti
                             Sair
-                        </a>
-                    </div>
-                </div>
+                        a
+                    div
+                div
             `;
         }
         
-        // Adicionar estilos para o menu do usuário
+         Adicionar estilos para o menu do usuário
         this.addUserMenuStyles();
     }
 
-    // Alternar menu do usuário
+     Adicionar estilos do menu do usuário (FUNÇÃO QUE ESTAVA FALTANDO)
+    addUserMenuStyles() {
+        const styles = `
+            .user-menu {
+                position relative;
+                margin-left 10px;
+            }
+            
+            .user-menu-btn {
+                background transparent;
+                border none;
+                color rgba(255, 255, 255, 0.8);
+                cursor pointer;
+                font-size 0.9rem;
+                padding 5px;
+                border-radius 4px;
+                transition all 0.3s ease;
+            }
+            
+            .user-menu-btnhover {
+                background rgba(255, 255, 255, 0.1);
+                color white;
+            }
+            
+            .user-dropdown {
+                position absolute;
+                top 100%;
+                right 0;
+                background white;
+                border-radius 8px;
+                box-shadow 0 4px 15px rgba(0,0,0,0.1);
+                min-width 150px;
+                display none;
+                z-index 1000;
+                margin-top 5px;
+            }
+            
+            .user-dropdown.show {
+                display block;
+                animation slideDown 0.3s ease;
+            }
+            
+            .user-dropdown-item {
+                padding 12px 20px;
+                display flex;
+                align-items center;
+                gap 10px;
+                color #666;
+                text-decoration none;
+                transition all 0.3s ease;
+                border-bottom 1px solid #eee;
+                font-size 0.9rem;
+            }
+            
+            .user-dropdown-itemlast-child {
+                border-bottom none;
+            }
+            
+            .user-dropdown-itemhover {
+                background #f8f9fa;
+                color #ff6b8b;
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity 0;
+                    transform translateY(-10px);
+                }
+                to {
+                    opacity 1;
+                    transform translateY(0);
+                }
+            }
+        `;
+        
+         Verifica se já existe o estilo antes de adicionar
+        if (!document.getElementById('user-menu-styles')) {
+            const styleSheet = document.createElement('style');
+            styleSheet.id = 'user-menu-styles';
+            styleSheet.textContent = styles;
+            document.head.appendChild(styleSheet);
+        }
+    }
+
+     Alternar menu do usuário
     toggleUserMenu() {
         const dropdown = document.getElementById('user-dropdown');
         if (dropdown) {
@@ -354,10 +439,10 @@ class AuthSystem {
         }
     }
 
-    // Configurar eventos de autenticação
+     Configurar eventos de autenticação
     setupAuthEvents() {
-        // Fechar menu do usuário ao clicar fora
-        document.addEventListener('click', (e) => {
+         Fechar menu do usuário ao clicar fora
+        document.addEventListener('click', (e) = {
             const dropdown = document.getElementById('user-dropdown');
             const menuBtn = document.querySelector('.user-menu-btn');
             
@@ -365,41 +450,59 @@ class AuthSystem {
                 dropdown.classList.remove('show');
             }
         });
+        
+         Fechar modal ao clicar fora
+        document.addEventListener('click', (e) = {
+            const modal = document.getElementById('login-modal');
+            if (modal && e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+         Fechar modal com ESC
+        document.addEventListener('keydown', (e) = {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('login-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        });
     }
 
-    // Verificar se usuário está autenticado
+     Verificar se usuário está autenticado
     isAuthenticated() {
         return this.currentUser !== null;
     }
 
-    // Obter usuário atual
+     Obter usuário atual
     getCurrentUser() {
         return this.currentUser;
     }
 
-    // Verificar permissões (exemplo básico)
+     Verificar permissões (exemplo básico)
     hasPermission(permission) {
         if (!this.currentUser) return false;
         
-        // Permissões baseadas no papel (role)
+         Permissões baseadas no papel (role)
         const permissions = {
-            'owner': ['view', 'edit', 'delete', 'admin'],
-            'seller': ['view', 'edit'],
-            'viewer': ['view']
+            'owner' ['view', 'edit', 'delete', 'admin'],
+            'seller' ['view', 'edit'],
+            'viewer' ['view']
         };
         
-        const userPermissions = permissions[this.currentUser.role] || [];
+        const userPermissions = permissions[this.currentUser.role]  [];
         return userPermissions.includes(permission);
     }
 }
 
-// Inicializar sistema de autenticação
+ Inicializar sistema de autenticação
 const auth = new AuthSystem();
 
-// Tornar disponível globalmente
+ Tornar disponível globalmente
 window.auth = auth;
 
-// Proteger páginas (exemplo básico)
+ Proteger páginas (exemplo básico)
 function requireAuth() {
     if (!auth.isAuthenticated()) {
         auth.showLoginModal();
@@ -408,7 +511,27 @@ function requireAuth() {
     return true;
 }
 
-// Usar em páginas protegidas (adicione isso no início dos scripts das páginas)
-// if (!requireAuth()) {
-//     // Redirecionar ou mostrar mensagem
-// }
+ Para DESATIVAR COMPLETAMENTE o sistema de login
+ 1. Comente a linha 18 em checkLoginStatus()
+ 2. OU use esta versão simplificada abaixo
+
+
+ Versão simplificada SEM login (comente todo código acima e use este)
+
+class AuthSystem {
+    constructor() {
+        this.currentUser = {
+            id 1,
+            username 'admin',
+            name 'Administrador',
+            role 'owner'
+        };
+    }
+    
+    isAuthenticated() { return true; }
+    getCurrentUser() { return this.currentUser; }
+    hasPermission() { return true; }
+}
+
+const auth = new AuthSystem();
+window.auth = auth;
