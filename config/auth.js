@@ -23,7 +23,8 @@ class AuthSystem {
             this.currentUser = JSON.parse(userData);
             this.updateUIForLoggedInUser();
         } else {
-            this.showLoginModal();
+            // Comente a linha abaixo para DESATIVAR o login automático
+            // this.showLoginModal();
         }
     }
 
@@ -346,6 +347,90 @@ class AuthSystem {
         this.addUserMenuStyles();
     }
 
+    // Adicionar estilos do menu do usuário (FUNÇÃO QUE ESTAVA FALTANDO)
+    addUserMenuStyles() {
+        const styles = `
+            .user-menu {
+                position: relative;
+                margin-left: 10px;
+            }
+            
+            .user-menu-btn {
+                background: transparent;
+                border: none;
+                color: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                font-size: 0.9rem;
+                padding: 5px;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+            
+            .user-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            
+            .user-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                min-width: 150px;
+                display: none;
+                z-index: 1000;
+                margin-top: 5px;
+            }
+            
+            .user-dropdown.show {
+                display: block;
+                animation: slideDown 0.3s ease;
+            }
+            
+            .user-dropdown-item {
+                padding: 12px 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #666;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border-bottom: 1px solid #eee;
+                font-size: 0.9rem;
+            }
+            
+            .user-dropdown-item:last-child {
+                border-bottom: none;
+            }
+            
+            .user-dropdown-item:hover {
+                background: #f8f9fa;
+                color: #ff6b8b;
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        
+        // Verifica se já existe o estilo antes de adicionar
+        if (!document.getElementById('user-menu-styles')) {
+            const styleSheet = document.createElement('style');
+            styleSheet.id = 'user-menu-styles';
+            styleSheet.textContent = styles;
+            document.head.appendChild(styleSheet);
+        }
+    }
+
     // Alternar menu do usuário
     toggleUserMenu() {
         const dropdown = document.getElementById('user-dropdown');
@@ -363,6 +448,24 @@ class AuthSystem {
             
             if (dropdown && menuBtn && !dropdown.contains(e.target) && !menuBtn.contains(e.target)) {
                 dropdown.classList.remove('show');
+            }
+        });
+        
+        // Fechar modal ao clicar fora
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('login-modal');
+            if (modal && e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('login-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
             }
         });
     }
@@ -408,7 +511,28 @@ function requireAuth() {
     return true;
 }
 
-// Usar em páginas protegidas (adicione isso no início dos scripts das páginas)
-// if (!requireAuth()) {
-//     // Redirecionar ou mostrar mensagem
-// }
+// Para DESATIVAR COMPLETAMENTE o sistema de login:
+// 1. Comente a linha 18 em checkLoginStatus()
+// 2. OU use esta versão simplificada abaixo:
+
+/*
+// Versão simplificada SEM login (comente todo código acima e use este)
+
+class AuthSystem {
+    constructor() {
+        this.currentUser = {
+            id: 1,
+            username: 'admin',
+            name: 'Administrador',
+            role: 'owner'
+        };
+    }
+    
+    isAuthenticated() { return true; }
+    getCurrentUser() { return this.currentUser; }
+    hasPermission() { return true; }
+}
+
+const auth = new AuthSystem();
+window.auth = auth;
+*/
