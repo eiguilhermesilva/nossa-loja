@@ -23,7 +23,7 @@ class AuthSystem {
             this.currentUser = JSON.parse(userData);
             this.updateUIForLoggedInUser();
         } else {
-           // this.showLoginModal(); // Remova as Barras e o comentário para ativar o login
+            this.showLoginModal();
         }
     }
 
