@@ -1,193 +1,197 @@
-// Configuração do Google Sheets como banco de dados
+// Configuração do Google Sheets como banco de dados - VERSÃO SIMPLIFICADA
 class Database {
     constructor() {
-        // URLs das APIs do Google Sheets (simulação)
-        this.sheetId = '1Nj0U6Fd7aa0rUnNrREH_ocMMw-jZZCacpfHhuM_LFYM'; // Coloque o ID da planilha aqui
-        this.appsScriptUrl = 'https://script.google.com/macros/s/AKfycbzvHP6D8SunN-pEB38acMJBHFMRvztOTbRqsZEIM8BtFqzjBt9kGb4qmJzuxYqRsie0Gg/exec';
+        // Cole sua URL do Google Apps Script AQUI:
+        this.appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxTsjrcQWnvNYva7Baw9i2ZrI3Tp4UlFAh80Vwt6DIKbPY2pw-JkPBnoQWNf7arSSpdZw/exec';
     }
 
-    // ========== MÉTODO PARA CONECTAR COM GOOGLE APPS SCRIPT ==========
-    static async fetchFromGoogleAppsScript(action, data = null) {
+    // ========== MÉTODO SIMPLIFICADO PARA CONECTAR COM GOOGLE ==========
+    static async callGoogleAPI(action, data = null) {
         const db = new Database();
+        
+        // Cria a URL com os parâmetros
         let url = `${db.appsScriptUrl}?action=${action}`;
         
         if (data) {
-            url += `&data=${encodeURIComponent(JSON.stringify(data))}`;
-        }
-        
-        try {
-            const response = await fetch(url);
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            console.error('Erro ao conectar com Google Apps Script:', error);
-            // Fallback para localStorage
-            return { success: false, error: error.message };
+            // Para dados complexos, usa POST
+            try {
+                const response = await fetch(db.appsScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // IMPORTANTE para Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=${action}&data=${encodeURIComponent(JSON.stringify(data))}`
+                });
+                
+                // Como usamos no-cors, não podemos ler a resposta diretamente
+                // O Google Apps Script vai processar e salvar
+                return { success: true };
+                
+            } catch (error) {
+                console.log('Usando fallback para GET:', error);
+                // Fallback para GET
+                url += `&data=${encodeURIComponent(JSON.stringify(data))}`;
+                const response = await fetch(url);
+                const result = await response.json();
+                return result;
+            }
+        } else {
+            // Para requisições GET simples
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Erro na requisição GET:', error);
+                return { success: false, error: error.message };
+            }
         }
     }
 
-    // Método para salvar dados localmente (usado enquanto não configura o Google Sheets)
+    // ========== MÉTODOS BÁSICOS (MANTENHA ESTES) ==========
     static saveToLocal(key, data) {
         localStorage.setItem(key, JSON.stringify(data));
         return true;
     }
 
-    // Método para carregar dados localmente
     static loadFromLocal(key) {
         const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : [];
     }
 
-    // ========== MÉTODO PARA ADICIONAR UM PRODUTO ==========
-    static async addProduct(product) {
-        // Tenta salvar no Google Apps Script
-        const result = await this.fetchFromGoogleAppsScript('addProduct', product);
+    // ========== MÉTODO PARA GERAR CÓDIGO DO PRODUTO ==========
+    static generateProductCode(nome, categoria) {
+        if (!nome) return 'PROD-0001';
         
-        if (result.success) {
-            // Também salva localmente como backup
-            const currentProducts = this.loadFromLocal('produtos') || [];
-            currentProducts.push(result.data);
-            this.saveToLocal('produtos', currentProducts);
-            
-            // Atualiza cache
-            this.saveToLocal('produtos_cache', currentProducts);
-            
-            return result.data;
-        }
+        // Pega as 3 primeiras letras do nome em maiúsculas
+        const nomeCode = nome.substring(0, 3).toUpperCase();
         
-        // Fallback para localStorage
-        return this.addProductLocal(product);
+        // Código da categoria
+        const catCodes = {
+            'maquiagem': 'MQ',
+            'skincare': 'SK',
+            'acessorios': 'AC',
+            'fragrancias': 'FR',
+            'cabelos': 'CB'
+        };
+        const catCode = catCodes[categoria] || 'GN';
+        
+        // Número sequencial baseado no timestamp
+        const sequential = Date.now().toString().slice(-4);
+        
+        return `${catCode}-${nomeCode}-${sequential}`;
     }
 
-    // ========== FUNÇÃO AUXILIAR PARA ADICIONAR LOCALMENTE ==========
-    static addProductLocal(product) {
-        const products = this.loadFromLocal('produtos') || [];
+    // ========== MÉTODO PARA ADICIONAR PRODUTO (VERSÃO QUE FUNCIONA) ==========
+    static async addProduct(product) {
+        // GERA O CÓDIGO AQUI MESMO - não depende do Google
+        if (!product.codigo && product.nome) {
+            product.codigo = this.generateProductCode(product.nome, product.categoria);
+        }
+        
+        // Gera ID e timestamps
         product.id = Date.now().toString();
         product.createdAt = new Date().toISOString();
-        products.push(product);
-        this.saveToLocal('produtos', products);
+        product.updatedAt = new Date().toISOString();
+        
+        // PRIMEIRO: Salva localmente (funciona sempre)
+        const localProducts = this.loadFromLocal('produtos') || [];
+        localProducts.push(product);
+        this.saveToLocal('produtos', localProducts);
+        
+        // DEPOIS: Tenta salvar no Google (em segundo plano)
+        try {
+            await this.callGoogleAPI('addProduct', product);
+            console.log('Produto enviado para Google Sheets com sucesso');
+        } catch (error) {
+            console.log('Produto salvo localmente. Erro ao enviar para Google:', error);
+        }
+        
         return product;
     }
 
-    // ========== MÉTODO PARA ATUALIZAR UM PRODUTO ==========
-    static async updateProduct(id, updates) {
-        // Primeiro tenta atualizar no Google Apps Script
-        const updateData = { id, ...updates };
-        const result = await this.fetchFromGoogleAppsScript('updateProduct', updateData);
+    // ========== MÉTODO PARA OBTER PRODUTOS ==========
+    static async getProducts(filter = {}) {
+        // SEMPRE retorna do localStorage primeiro (para ser rápido)
+        let products = this.loadFromLocal('produtos') || [];
         
-        if (result.success) {
-            // Atualiza localmente também
-            const products = this.loadFromLocal('produtos') || [];
-            const index = products.findIndex(p => p.id === id);
-            if (index !== -1) {
-                products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
-                this.saveToLocal('produtos', products);
-                this.saveToLocal('produtos_cache', products);
+        // Se não tiver produtos locais, tenta buscar do Google
+        if (products.length === 0) {
+            try {
+                const result = await this.callGoogleAPI('getProducts');
+                if (result.success && result.data) {
+                    products = result.data;
+                    // Salva localmente como cache
+                    this.saveToLocal('produtos', products);
+                }
+            } catch (error) {
+                console.log('Usando dados locais:', error);
             }
-            return result.data;
         }
         
-        // Fallback para localStorage
+        // Aplica filtros
+        if (filter.categoria) {
+            products = products.filter(p => p.categoria === filter.categoria);
+        }
+        
+        if (filter.estoqueBaixo) {
+            const minStock = parseInt(localStorage.getItem('estoqueMinimo')) || 5;
+            products = products.filter(p => p.estoque <= minStock);
+        }
+        
+        if (filter.search) {
+            const searchTerm = filter.search.toLowerCase();
+            products = products.filter(p => 
+                p.nome.toLowerCase().includes(searchTerm) ||
+                (p.descricao && p.descricao.toLowerCase().includes(searchTerm)) ||
+                (p.codigo && p.codigo.toLowerCase().includes(searchTerm))
+            );
+        }
+        
+        return products;
+    }
+
+    // ========== MÉTODO PARA ATUALIZAR PRODUTO ==========
+    static async updateProduct(id, updates) {
+        // Atualiza localmente primeiro
         const products = this.loadFromLocal('produtos') || [];
         const index = products.findIndex(p => p.id === id);
+        
         if (index !== -1) {
-            products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
+            // Adiciona timestamp de atualização
+            updates.updatedAt = new Date().toISOString();
+            
+            // Atualiza o produto
+            products[index] = { ...products[index], ...updates };
             this.saveToLocal('produtos', products);
+            
+            // Tenta atualizar no Google também
+            try {
+                await this.callGoogleAPI('updateProduct', { id, ...updates });
+            } catch (error) {
+                console.log('Atualizado localmente. Erro ao enviar para Google:', error);
+            }
+            
             return products[index];
         }
+        
         return null;
     }
 
-    // Método para remover um produto
-    static deleteProduct(id) {
-        const products = this.loadFromLocal('produtos');
-        const filtered = products.filter(p => p.id !== id);
-        this.saveToLocal('produtos', filtered);
-        return filtered.length < products.length;
-    }
-
-    // ========== MÉTODO PARA OBTER PRODUTOS (AGORA COM GOOGLE) ==========
-    static async getProducts(filter = {}) {
-        // Primeiro tenta do Google Apps Script
-        const result = await this.fetchFromGoogleAppsScript('getProducts');
-        
-        if (result.success && result.data) {
-            let products = result.data;
-            
-            // Aplicar filtros localmente
-            if (filter.categoria) {
-                products = products.filter(p => p.categoria === filter.categoria);
-            }
-            
-            if (filter.estoqueBaixo) {
-                const minStock = parseInt(localStorage.getItem('estoqueMinimo')) || 5;
-                products = products.filter(p => p.estoque <= minStock);
-            }
-            
-            if (filter.search) {
-                const searchTerm = filter.search.toLowerCase();
-                products = products.filter(p => 
-                    p.nome.toLowerCase().includes(searchTerm) ||
-                    (p.descricao && p.descricao.toLowerCase().includes(searchTerm)) ||
-                    (p.codigo && p.codigo.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            // Salva localmente como cache
-            this.saveToLocal('produtos_cache', products);
-            return products;
-        }
-        
-        // Fallback 1: Cache local
-        const cachedProducts = this.loadFromLocal('produtos_cache');
-        if (cachedProducts && cachedProducts.length > 0) {
-            return cachedProducts;
-        }
-        
-        // Fallback 2: localStorage original
-        return this.loadFromLocal('produtos');
-    }
-
-    // ========== MÉTODO PARA REGISTRAR UMA VENDA ==========
+    // ========== MÉTODO PARA ADICIONAR VENDA ==========
     static async addSale(sale) {
-        // Tenta salvar no Google Apps Script
-        const result = await this.fetchFromGoogleAppsScript('addSale', sale);
-        
-        if (result.success) {
-            // Salva localmente como backup
-            const sales = this.loadFromLocal('vendas') || [];
-            sales.push(result.data);
-            this.saveToLocal('vendas', sales);
-            
-            // Atualiza estoque localmente também
-            if (result.data.produtos) {
-                const products = this.loadFromLocal('produtos') || [];
-                result.data.produtos.forEach(item => {
-                    const productIndex = products.findIndex(p => p.id === item.produtoId);
-                    if (productIndex !== -1) {
-                        products[productIndex].estoque -= item.quantidade;
-                        products[productIndex].ultimaVenda = new Date().toISOString();
-                    }
-                });
-                this.saveToLocal('produtos', products);
-            }
-            
-            return result.data;
-        }
-        
-        // Fallback para localStorage
-        return this.addSaleLocal(sale);
-    }
-
-    // Método auxiliar para adicionar venda localmente
-    static addSaleLocal(sale) {
-        const sales = this.loadFromLocal('vendas') || [];
+        // Prepara a venda
         sale.id = Date.now().toString();
         sale.data = new Date().toISOString();
         sale.status = sale.status || 'concluida';
-        sales.push(sale);
         
-        // Atualizar estoque dos produtos vendidos
+        // Salva localmente primeiro
+        const localSales = this.loadFromLocal('vendas') || [];
+        localSales.push(sale);
+        this.saveToLocal('vendas', localSales);
+        
+        // Atualiza estoque local
         const products = this.loadFromLocal('produtos') || [];
         sale.produtos.forEach(item => {
             const productIndex = products.findIndex(p => p.id === item.produtoId);
@@ -196,14 +200,27 @@ class Database {
                 products[productIndex].ultimaVenda = new Date().toISOString();
             }
         });
-        
         this.saveToLocal('produtos', products);
-        this.saveToLocal('vendas', sales);
+        
+        // Tenta enviar para o Google
+        try {
+            await this.callGoogleAPI('addSale', sale);
+            console.log('Venda enviada para Google Sheets');
+        } catch (error) {
+            console.log('Venda salva localmente. Erro ao enviar para Google:', error);
+        }
         
         return sale;
     }
 
-    // Método para obter vendas
+    // ========== MÉTODOS RESTANTES (mantenha como estavam) ==========
+    static deleteProduct(id) {
+        const products = this.loadFromLocal('produtos');
+        const filtered = products.filter(p => p.id !== id);
+        this.saveToLocal('produtos', filtered);
+        return filtered.length < products.length;
+    }
+
     static getSales(filter = {}) {
         let sales = this.loadFromLocal('vendas') || [];
         
@@ -221,7 +238,6 @@ class Database {
         return sales;
     }
 
-    // Método para obter relatórios
     static getReports(type, periodo) {
         const sales = this.loadFromLocal('vendas') || [];
         const products = this.loadFromLocal('produtos') || [];
@@ -238,7 +254,6 @@ class Database {
         }
     }
 
-    // Método auxiliar: vendas por mês
     static getMonthlySales(sales, periodo) {
         const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         const resultado = {};
@@ -257,7 +272,6 @@ class Database {
         return resultado;
     }
 
-    // Método auxiliar: produtos mais vendidos
     static getTopProducts(sales, periodo) {
         const produtosMap = {};
         
@@ -276,13 +290,11 @@ class Database {
             });
         });
         
-        // Converter para array e ordenar por quantidade
         return Object.values(produtosMap)
             .sort((a, b) => b.quantidade - a.quantidade)
             .slice(0, 10);
     }
 
-    // Método auxiliar: lucratividade
     static getProfitability(sales, products, periodo) {
         const resultado = {
             faturamentoTotal: 0,
