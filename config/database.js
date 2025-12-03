@@ -2,7 +2,7 @@
 class Database {
     constructor() {
         // Cole sua URL do Google Apps Script AQUI:
-        this.appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxTsjrcQWnvNYva7Baw9i2ZrI3Tp4UlFAh80Vwt6DIKbPY2pw-JkPBnoQWNf7arSSpdZw/exec';
+        this.appsScriptUrl = 'https://script.google.com/macros/s/AKfycbySgdwz__W5fKqP48rjNlqaLsXcLG2sZW6isCXm-thrLzLuXzcP-c9_-ccBiGDKXog-nQ/exec';
     }
 
     // ========== MÉTODO SIMPLIFICADO PARA CONECTAR COM GOOGLE ==========

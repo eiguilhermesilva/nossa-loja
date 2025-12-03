@@ -1,7 +1,7 @@
 // Google Apps Script para servir como backend do BeautyStore
 // Cole este código no Google Apps Script (script.google.com)
 
-const SPREADSHEET_ID = '1Nj0U6Fd7aa0rUnNrREH_ocMMw-jZZCacpfHhuM_LFYM/edit?gid=136176382';
+const SPREADSHEET_ID = '1Nj0U6Fd7aa0rUnNrREH_ocMMw-jZZCacpfHhuM_LFYM';
 
 function doGet(e) {
     return handleRequest(e);
