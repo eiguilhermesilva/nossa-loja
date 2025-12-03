@@ -3,7 +3,7 @@ class Database {
     constructor() {
         // URLs das APIs do Google Sheets (simulação)
         this.sheetId = 'SEU_SHEET_ID_AQUI';
-        this.apiKey = 'SUA_API_KEY_AQUI';
+        this.apiKey = '1Nj0U6Fd7aa0rUnNrREH_ocMMw-jZZCacpfHhuM_LFYM';
         this.baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/`;
     }
 
