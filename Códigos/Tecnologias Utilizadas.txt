@@ -1,0 +1,87 @@
+
+## 🔧 Tecnologias Utilizadas
+
+- **HTML5** - Estrutura das páginas
+- **CSS3** - Estilização e design responsivo
+- **JavaScript** - Lógica e interatividade
+- **Chart.js** - Gráficos e visualizações
+- **Google Sheets API** - Armazenamento de dados
+- **Font Awesome** - Ícones
+- **Google Fonts** - Tipografia
+
+## 👥 Usuários do Sistema
+
+### 👑 Administrador/Proprietário
+- Acesso completo a todas as funcionalidades
+- Configurações do sistema
+- Relatórios financeiros
+- Gestão de usuários
+
+### 👩‍💼 Vendedor
+- Realizar vendas
+- Consultar produtos
+- Visualizar estoque
+- Histórico de vendas próprias
+
+### 👁️ Visualizador
+- Apenas consultas
+- Visualização de relatórios
+- Sem permissão para alterações
+
+## 🔐 Segurança
+
+- Autenticação por usuário e senha
+- Controle de permissões por função
+- Dados armazenados localmente (opcional)
+- Logout automático por inatividade
+
+## 📱 Responsividade
+
+O sistema é totalmente responsivo e funciona em:
+- 💻 Computadores
+- 📱 Smartphones
+- 📟 Tablets
+
+## 🆘 Suporte
+
+### Problemas Comuns
+
+1. **Não consigo acessar o sistema**
+   - Verifique se o GitHub Pages está ativo
+   - Confira as configurações do Google Sheets
+
+2. **Os dados não estão salvando**
+   - Verifique as permissões da planilha
+   - Confira a conexão com a internet
+
+3. **Layout quebrado no celular**
+   - Atualize a página
+   - Limpe o cache do navegador
+
+### Dicas Importantes
+
+1. **Faça backup regular** dos dados
+2. **Teste as funcionalidades** antes de usar em produção
+3. **Configure alertas** para estoque baixo
+4. **Revise os relatórios** periodicamente
+
+## 📄 Licença
+
+Este sistema é gratuito para uso pessoal e comercial. Desenvolvido especialmente para pequenas lojas de maquiagem e skincare.
+
+## 🤝 Contribuição
+
+Encontrou um bug? Tem uma sugestão? Sinta-se à vontade para:
+1. Reportar issues
+2. Sugerir melhorias
+3. Compartilhar com outras lojas
+
+## 📞 Contato
+
+Para dúvidas e suporte:
+- Email: suporte@beautystore.com
+- WhatsApp: (11) 99999-9999
+
+---
+
+**💖 Desenvolvido com carinho para empreendedores da beleza!**

@@ -1,0 +1,176 @@
+/* sync-styles.css */
+.sync-panel {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: none;
+    border: 1px solid #e0e0e0;
+}
+
+.sync-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.sync-header h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.btn-close-sync {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.sync-status {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.status-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.sync-controls {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.btn-sync-now, .btn-load-cloud, .btn-backup, .btn-restore {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-sync-now {
+    background: #2196f3;
+    color: white;
+}
+
+.btn-sync-now:hover {
+    background: #1976d2;
+}
+
+.btn-load-cloud {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-load-cloud:hover {
+    background: #388e3c;
+}
+
+.btn-backup {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-backup:hover {
+    background: #ef6c00;
+}
+
+.btn-restore {
+    background: #9c27b0;
+    color: white;
+}
+
+.btn-restore:hover {
+    background: #7b1fa2;
+}
+
+.sync-history {
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sync-history h5 {
+    margin: 0 0 10px 0;
+    color: #555;
+}
+
+.history-list {
+    font-size: 12px;
+}
+
+.history-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    border-left: 3px solid #4caf50;
+}
+
+.history-item.error {
+    border-left-color: #f44336;
+}
+
+.btn-sync {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.btn-sync::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff9800;
+    border: 2px solid white;
+    display: none;
+}
+
+.btn-sync.has-pending::after {
+    display: block;
+}

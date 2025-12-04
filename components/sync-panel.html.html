@@ -1,0 +1,51 @@
+<!-- components/sync-panel.html -->
+<div class="sync-panel" id="sync-panel">
+    <div class="sync-header">
+        <h4><i class="fas fa-cloud"></i> Sincronização</h4>
+        <button class="btn-close-sync" onclick="toggleSyncPanel()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sync-status">
+        <div class="status-item">
+            <span class="status-label">Conexão:</span>
+            <span class="status-value" id="connection-status">
+                <i class="fas fa-wifi"></i> Online
+            </span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Pendentes:</span>
+            <span class="status-value" id="pending-count">0</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Última sinc.:</span>
+            <span class="status-value" id="last-sync">Nunca</span>
+        </div>
+    </div>
+    
+    <div class="sync-controls">
+        <button class="btn-sync-now" onclick="syncNow()">
+            <i class="fas fa-sync-alt"></i> Sincronizar Agora
+        </button>
+        <button class="btn-load-cloud" onclick="loadFromCloud()">
+            <i class="fas fa-cloud-download-alt"></i> Carregar da Nuvem
+        </button>
+        <button class="btn-backup" onclick="createBackup()">
+            <i class="fas fa-save"></i> Criar Backup
+        </button>
+        <button class="btn-restore" onclick="showRestoreDialog()">
+            <i class="fas fa-upload"></i> Restaurar Backup
+        </button>
+    </div>
+    
+    <div class="sync-history">
+        <h5>Histórico Recente</h5>
+        <div class="history-list" id="sync-history-list">
+            <!-- Histórico será preenchido via JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Input oculto para restaurar backup -->
+<input type="file" id="backup-file-input" accept=".json" style="display: none;">
